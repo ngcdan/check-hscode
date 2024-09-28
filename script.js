@@ -71,6 +71,21 @@ function initializeDataTable() {
 async function searchData(query) {
   const sheetID = '1OdYGiqCRSjJQJhplkudt7zbZatUqUhpQYUlTOXIFrgw'
 
+  // Google Analytics event tracking
+  if (typeof gtag === 'function') {
+    gtag('event', 'search', {
+      'event_category': 'HS Code Search',
+      'event_label': query
+    });
+  }
+
+  // Gửi sự kiện đến Google Analytics
+  gtag('event', 'search', {
+    'event_category': 'Search',
+    'event_label': query,  // Gửi cụm từ người dùng tìm kiếm
+    'value': 1                  // Bạn có thể gán giá trị tùy ý, ví dụ số lần tìm kiếm
+  });
+
   $('#loading').show();
   dataTable.clear();
   const regex = new RegExp(`(${removeVietnameseTones(query)})`, 'gi');
