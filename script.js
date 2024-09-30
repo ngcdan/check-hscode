@@ -5,14 +5,9 @@ function initializeDataTable() {
   dataTable = $('#dataTable').DataTable({
     responsive: true,
     columns: [
-      { data: 'productName' }, // Tên hàng
-      { data: 'hsCode' }, // HS Code
-      {
-        data: 'description', // Thông tin tham khảo
-        render: function (data, type, row) {
-          return data.replace(/\n/g, '<br>');
-        }
-      },
+      { data: 'productName' },
+      { data: 'hsCode' },
+      { data: 'description', },
       {
         data: 'date',
         visible: false,
@@ -24,23 +19,8 @@ function initializeDataTable() {
         targets: '_all',
         render: function (data, type, row) {
           if (type === 'display') {
-            const query = $('#searchInput').val();
-            if (query) {
-              const regex = new RegExp(`(${removeVietnameseTones(query)})`, 'gi');
-              const dataWithoutTones = removeVietnameseTones(data);
-              let result = data;
-              let match;
-              let offset = 0;
-
-              while ((match = regex.exec(dataWithoutTones)) !== null) {
-                const matchedText = data.slice(match.index + offset, regex.lastIndex + offset);
-                const replacement = `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
-                result = result.slice(0, match.index + offset) + replacement + result.slice(regex.lastIndex + offset);
-                offset += replacement.length - matchedText.length;
-              }
-              return result;
-            }
-            return data;
+            // Chỉ thay thế \n bằng <br> mà không cần logic highlight
+            return data.replace(/\n/g, '<br>');
           }
           return data;
         },
@@ -100,11 +80,30 @@ async function searchData(query) {
         removeVietnameseTones(value.toString().toLowerCase()).includes(removeVietnameseTones(query.toLowerCase()))
       ))
       .map(item => {
+        const highlightText = (text) => {
+          if (query && query.trim() !== '') {
+            const regex = new RegExp(`(${removeVietnameseTones(query.trim())})`, 'gi');
+            const textWithoutTones = removeVietnameseTones(text);
+            let result = text;
+            let match;
+            let offset = 0;
+
+            while ((match = regex.exec(textWithoutTones)) !== null) {
+              const matchedText = text.slice(match.index + offset, regex.lastIndex + offset);
+              const replacement = `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
+              result = result.slice(0, match.index + offset) + replacement + result.slice(regex.lastIndex + offset);
+              offset += replacement.length - matchedText.length;
+            }
+            return result;
+          }
+          return text;
+        };
+
         return {
           date: item.date,
-          description: item.description.replace(/\n/g, '<br>').replace(regex, '<span class="bg-yellow-300 text-slate-800">$1</span>'),
-          hsCode: item.hsCode.replace(regex, '<span class="bg-yellow-300 text-slate-800">$1</span>'),
-          productName: item.productName.replace(regex, '<span class="bg-yellow-300 text-slate-800">$1</span>')
+          description: highlightText(item.description.replace(/\n/g, '<br>')),
+          hsCode: highlightText(item.hsCode),
+          productName: highlightText(item.productName)
         };
       })
       .sort((a, b) => {
