@@ -82,19 +82,24 @@ async function searchData(query) {
       .map(item => {
         const highlightText = (text) => {
           if (query && query.trim() !== '') {
-            const regex = new RegExp(`(${removeVietnameseTones(query.trim())})`, 'gi');
+            const cleanQuery = removeVietnameseTones(query.trim());
+            const words = cleanQuery.split(/\s+/);
+            const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
             const textWithoutTones = removeVietnameseTones(text);
-            let result = text;
-            let match;
-            let offset = 0;
 
-            while ((match = regex.exec(textWithoutTones)) !== null) {
-              const matchedText = text.slice(match.index + offset, regex.lastIndex + offset);
-              const replacement = `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
-              result = result.slice(0, match.index + offset) + replacement + result.slice(regex.lastIndex + offset);
-              offset += replacement.length - matchedText.length;
-            }
-            return result;
+            let result = '';
+            let lastIndex = 0;
+
+            textWithoutTones.replace(regex, (match, p1, offset) => {
+              const matchedText = text.slice(offset, offset + match.length);
+              result += text.slice(lastIndex, offset);
+              result += `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
+              lastIndex = offset + match.length;
+            });
+
+            result += text.slice(lastIndex);
+            return result || text;
           }
           return text;
         };
