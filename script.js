@@ -92,28 +92,28 @@ async function searchData(query) {
         // OR condition - match any pattern
         console.log('call search or condition');
         return searchPatterns.some(pattern =>
-          Object.values(item).some(value =>
-            removeVietnameseTones(value.toString().toLowerCase())
-              .includes(removeVietnameseTones(pattern.toLowerCase()))
-          )
+          Object.values(item).some(value => {
+            const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
+            return words.some(word => word === removeVietnameseTones(pattern.toLowerCase()));
+          })
         );
       } else if (isAndSearch) {
         console.log('call search and condition');
 
         // AND condition - must match all patterns
         return searchPatterns.every(pattern =>
-          Object.values(item).some(value =>
-            removeVietnameseTones(value.toString().toLowerCase())
-              .includes(removeVietnameseTones(pattern.toLowerCase()))
-          )
+          Object.values(item).some(value => {
+            const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
+            return words.some(word => word === removeVietnameseTones(pattern.toLowerCase()));
+          })
         );
       } else {
         console.log('call single partern condition');
         // Single pattern search
-        return Object.values(item).some(value =>
-          removeVietnameseTones(value.toString().toLowerCase())
-            .includes(removeVietnameseTones(query.toLowerCase()))
-        );
+        return Object.values(item).some(value => {
+          const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
+          return words.some(word => word === removeVietnameseTones(query.toLowerCase()));
+        });
       }
     })
       .map(item => {
@@ -127,7 +127,7 @@ async function searchData(query) {
                 const escapedWords = words.map(word =>
                   word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                 );
-                const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
+                const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
                 const textWithoutTones = removeVietnameseTones(result);
 
                 let tempResult = '';
