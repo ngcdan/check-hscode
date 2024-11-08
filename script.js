@@ -91,28 +91,40 @@ async function searchData(query) {
       if (isOrSearch) {
         // OR condition - match any pattern
         console.log('call search or condition');
-        return searchPatterns.some(pattern =>
-          Object.values(item).some(value => {
-            const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
-            return words.some(word => word === removeVietnameseTones(pattern.toLowerCase()));
-          })
-        );
+        return searchPatterns.some(pattern => {
+          const patternPhrases = removeVietnameseTones(pattern.toLowerCase()).split(/\s+/);
+          return Object.values(item).some(value => {
+            const valueText = removeVietnameseTones(value.toString().toLowerCase());
+            // Kiểm tra từng cụm từ trong pattern
+            return patternPhrases.every(phrase => {
+              const phraseRegex = new RegExp(`\\b${phrase}\\b`, 'i');
+              return phraseRegex.test(valueText);
+            });
+          });
+        });
       } else if (isAndSearch) {
         console.log('call search and condition');
-
         // AND condition - must match all patterns
-        return searchPatterns.every(pattern =>
-          Object.values(item).some(value => {
-            const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
-            return words.some(word => word === removeVietnameseTones(pattern.toLowerCase()));
-          })
-        );
+        return searchPatterns.every(pattern => {
+          const patternPhrases = removeVietnameseTones(pattern.toLowerCase()).split(/\s+/);
+          return Object.values(item).some(value => {
+            const valueText = removeVietnameseTones(value.toString().toLowerCase());
+            return patternPhrases.every(phrase => {
+              const phraseRegex = new RegExp(`\\b${phrase}\\b`, 'i');
+              return phraseRegex.test(valueText);
+            });
+          });
+        });
       } else {
-        console.log('call single partern condition');
+        console.log('call single pattern condition');
         // Single pattern search
+        const patternPhrases = removeVietnameseTones(query.toLowerCase()).split(/\s+/);
         return Object.values(item).some(value => {
-          const words = removeVietnameseTones(value.toString().toLowerCase()).split(/\s+/);
-          return words.some(word => word === removeVietnameseTones(query.toLowerCase()));
+          const valueText = removeVietnameseTones(value.toString().toLowerCase());
+          return patternPhrases.every(phrase => {
+            const phraseRegex = new RegExp(`\\b${phrase}\\b`, 'i');
+            return phraseRegex.test(valueText);
+          });
         });
       }
     })
@@ -122,12 +134,11 @@ async function searchData(query) {
             let result = text;
             searchPatterns.forEach(pattern => {
               if (pattern) {
-                const cleanPattern = removeVietnameseTones(pattern);
-                const words = cleanPattern.split(/\s+/);
-                const escapedWords = words.map(word =>
-                  word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                const patternPhrases = removeVietnameseTones(pattern.toLowerCase()).split(/\s+/);
+                const escapedPhrases = patternPhrases.map(phrase =>
+                  phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                 );
-                const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+                const regex = new RegExp(`\\b(${escapedPhrases.join('|')})\\b`, 'gi');
                 const textWithoutTones = removeVietnameseTones(result);
 
                 let tempResult = '';
