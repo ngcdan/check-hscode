@@ -69,37 +69,53 @@ async function searchData(query) {
 
   $('#loading').show();
   dataTable.clear();
-  const regex = new RegExp(`(${removeVietnameseTones(query)})`, 'gi');
 
   try {
     const response = await fetch('content/data.json');
     const data = await response.json();
 
-    const filteredData = data.filter(item =>
-      Object.values(item).some(value =>
-        removeVietnameseTones(value.toString().toLowerCase()).includes(removeVietnameseTones(query.toLowerCase()))
-      ))
+    // Kiểm tra xem query có chứa dấu | hay không
+    const searchPatterns = query.split('|').map(pattern => pattern.trim());
+
+    const filteredData = data.filter(item => {
+      // Nếu có nhiều pattern, item phải match với ít nhất 1 pattern
+      return searchPatterns.some(pattern =>
+        Object.values(item).some(value =>
+          removeVietnameseTones(value.toString().toLowerCase())
+            .includes(removeVietnameseTones(pattern.toLowerCase()))
+        )
+      );
+    })
       .map(item => {
         const highlightText = (text) => {
           if (query && query.trim() !== '') {
-            const cleanQuery = removeVietnameseTones(query.trim());
-            const words = cleanQuery.split(/\s+/);
-            const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-            const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
-            const textWithoutTones = removeVietnameseTones(text);
+            // Highlight cho từng pattern riêng biệt
+            let result = text;
+            searchPatterns.forEach(pattern => {
+              if (pattern) {
+                const cleanPattern = removeVietnameseTones(pattern);
+                const words = cleanPattern.split(/\s+/);
+                const escapedWords = words.map(word =>
+                  word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                );
+                const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
+                const textWithoutTones = removeVietnameseTones(result);
 
-            let result = '';
-            let lastIndex = 0;
+                let tempResult = '';
+                let lastIndex = 0;
 
-            textWithoutTones.replace(regex, (match, p1, offset) => {
-              const matchedText = text.slice(offset, offset + match.length);
-              result += text.slice(lastIndex, offset);
-              result += `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
-              lastIndex = offset + match.length;
+                textWithoutTones.replace(regex, (match, p1, offset) => {
+                  const matchedText = result.slice(offset, offset + match.length);
+                  tempResult += result.slice(lastIndex, offset);
+                  tempResult += `<span class="bg-yellow-300 text-slate-800">${matchedText}</span>`;
+                  lastIndex = offset + match.length;
+                });
+
+                tempResult += result.slice(lastIndex);
+                result = tempResult || result;
+              }
             });
-
-            result += text.slice(lastIndex);
-            return result || text;
+            return result;
           }
           return text;
         };
