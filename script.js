@@ -74,22 +74,47 @@ async function searchData(query) {
     const response = await fetch('content/data.json');
     const data = await response.json();
 
-    // Kiểm tra xem query có chứa dấu | hay không
-    const searchPatterns = query.split('|').map(pattern => pattern.trim());
+    // Phân tích query
+    const isOrSearch = query.includes('||');
+    const isAndSearch = query.includes('|') && !isOrSearch;
+
+    let searchPatterns;
+    if (isOrSearch) {
+      searchPatterns = query.split('||').map(pattern => pattern.trim());
+    } else if (isAndSearch) {
+      searchPatterns = query.split('|').map(pattern => pattern.trim());
+    } else {
+      searchPatterns = [query.trim()];
+    }
 
     const filteredData = data.filter(item => {
-      // Nếu có nhiều pattern, item phải match với ít nhất 1 pattern
-      return searchPatterns.some(pattern =>
-        Object.values(item).some(value =>
+      if (isOrSearch) {
+        // OR condition - match any pattern
+        return searchPatterns.some(pattern =>
+          Object.values(item).some(value =>
+            removeVietnameseTones(value.toString().toLowerCase())
+              .includes(removeVietnameseTones(pattern.toLowerCase()))
+          )
+        );
+      } else if (isAndSearch) {
+        // AND condition - must match all patterns
+        return searchPatterns.every(pattern =>
+          Object.values(item).some(value =>
+            removeVietnameseTones(value.toString().toLowerCase())
+              .includes(removeVietnameseTones(pattern.toLowerCase()))
+          )
+        );
+      } else {
+        // Single pattern search
+        return Object.values(item).some(value =>
           removeVietnameseTones(value.toString().toLowerCase())
-            .includes(removeVietnameseTones(pattern.toLowerCase()))
-        )
-      );
+            .includes(removeVietnameseTones(query.toLowerCase()))
+        );
+      }
     })
       .map(item => {
         const highlightText = (text) => {
           if (query && query.trim() !== '') {
-            // Highlight cho từng pattern riêng biệt
             let result = text;
             searchPatterns.forEach(pattern => {
               if (pattern) {
