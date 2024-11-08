@@ -32,11 +32,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #a991f7;
+      --primary-focus: #8462f4;
+      --secondary: #f6d860;
+      --accent: #37cdbe;
+      --neutral: #3d4451;
+      --base-100: #ffffff;
+      --base-200: #f8f9fc;
+      --base-300: #e2e8f0;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       font-size: 16px;
       line-height: 1.5;
       letter-spacing: -0.011em;
+      background-color: var(--base-200);
+      color: var(--neutral);
     }
 
     *::-webkit-scrollbar {
@@ -45,7 +58,7 @@
     }
 
     *::-webkit-scrollbar-thumb {
-      background-color: #5c6fcc;
+      background-color: var(--primary);
       border-radius: 50px
     }
 
@@ -91,6 +104,8 @@
     .dataTables_scroll {
       margin-top: 16px;
       overflow: auto;
+      border-radius: 1rem;
+      border: 2px solid var(--base-300);
     }
 
     .dataTables_scrollHead {
@@ -106,24 +121,26 @@
 
     .dataTables_length {
       font-size: 14px;
-      color: #666;
+      color: var(--neutral);
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button {
       padding: 0.5em 1em;
       margin: 0 0.2em;
       transition: all 0.3s linear;
+      border-radius: 0.5rem;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-      background: #e2e8f0;
-      border-color: #cbd5e0;
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white !important;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button.current,
     .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-      background: #4299e1;
-      border-color: #4299e1;
+      background: var(--primary);
+      border-color: var(--primary);
       color: white !important;
     }
 
@@ -159,24 +176,25 @@
   </style>
 </head>
 
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-  <main class="flex-grow bg-gray-50 py-4 sm:py-8">
+  <main class="flex-grow py-4 sm:py-8">
     <div class="container mx-auto px-2 sm:px-4">
 
-      <div class="bg-white shadow-md rounded-lg p-4 sm:p-6">
+      <div style="background-color: var(--base-100)" class="shadow-lg rounded-xl p-6 sm:p-8 border-2 border-base-300">
 
-        <h2 class="text-2xl sm:text-3xl font-semibold mb-3 sm:mb-4 text-slate-800">Kiểm tra thông tin khai báo hải quan
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4" style="color: var(--neutral)">Kiểm tra thông tin khai báo hải quan
         </h2>
-        <p class="text-sm sm:text-base text-slate-600 mb-4 sm:mb-6">
+        <p class="text-sm sm:text-base mb-4 sm:mb-6" style="color: var(--neutral)">
           Tra cứu thông tin HS Code và các thông tin liên quan đến khai báo hải quan
         </p>
 
         <div id="searchContainer" class="mb-6 sm:mb-8">
-          <div class="flex flex-col sm:flex-row gap-2">
+          <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative w-full group">
               <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm..."
-                class="h-full w-full sm:flex-grow px-3 py-2 sm:px-4 sm:py-3 border border-slate-300 rounded-md sm:rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base mb-2 sm:mb-0"
+                class="h-full w-full sm:flex-grow px-4 py-3 border-2 rounded-xl focus:outline-none focus:border-primary text-sm sm:text-base mb-2 sm:mb-0"
+                style="border-color: var(--base-300)"
                 onpaste="setTimeout(() => this.form.submit(), 0)">
               <script>
                 window.addEventListener('load', async () => {
@@ -189,23 +207,26 @@
                   }
                 });
               </script>
-              <div class="hidden group-hover:block absolute z-10 bg-gray-800 text-white text-sm rounded p-4 mt-1 left-0 leading-relaxed">
+              <div class="hidden group-hover:block absolute z-10 rounded-xl p-4 mt-2 left-0 leading-relaxed"
+                style="background-color: var(--neutral); color: var(--base-100)">
                 <p class="font-medium mb-2">Cách tìm kiếm:</p>
                 <ol class="space-y-2">
-                  <li>1. Tìm đơn giản: <span class="text-blue-300">'dây cáp điện'</span></li>
-                  <li>2. Tìm nhiều từ khóa: <span class="text-blue-300">'dây cáp | dây điện'</span></li>
-                  <li>3. Tìm kết hợp: <span class="text-blue-300">'dây cáp & công ty A'</span></li>
+                  <li>1. Tìm đơn giản: <span style="color: var(--accent)">'dây cáp điện'</span></li>
+                  <li>2. Tìm nhiều từ khóa: <span style="color: var(--accent)">'dây cáp | dây điện'</span></li>
+                  <li>3. Tìm kết hợp: <span style="color: var(--accent)">'dây cáp & công ty A'</span></li>
                 </ol>
               </div>
             </div>
             <button id="searchButton"
-              class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 sm:px-8 sm:py-3 text-sm sm:text-base font-medium rounded-md sm:rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">Tìm
-              kiếm</button>
+              class="w-full sm:w-auto px-6 py-3 text-sm sm:text-base font-medium rounded-xl transition duration-300 hover:opacity-90"
+              style="background-color: var(--primary); color: white;">
+              Tìm kiếm
+            </button>
           </div>
         </div>
 
-        <div id="loading" class="hidden text-center text-sky-600 my-4 sm:my-6">
-          <svg class="animate-spin h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3 inline-block" viewBox="0 0 24 24">
+        <div id="loading" class="hidden text-center my-4 sm:my-6" style="color: var(--primary)">
+          <svg class="animate-spin h-6 w-6 sm:h-7 sm:w-7 mr-3 inline-block" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
@@ -217,10 +238,10 @@
         <div class="overflow-x-auto mb-4 sm:mb-6">
           <table id="dataTable" class="w-full">
             <thead>
-              <tr class="bg-blue-600 uppercase text-xs sm:text-sm leading-normal border-b-2 border-slate-100">
-                <th class="py-3 px-4 sm:py-4 sm:px-6 text-left text-white font-semibold w-1/3">Tên hàng</th>
+              <tr style="background-color: var(--primary)" class="uppercase text-xs sm:text-sm leading-normal border-b-2">
+                <th class="py-3 px-4 sm:py-4 sm:px-6 text-left text-white font-semibold w-1/3 first:rounded-tl-xl">Tên hàng</th>
                 <th class="py-3 px-4 sm:py-4 sm:px-6 text-left text-white font-semibold w-1/6">HS Code</th>
-                <th class="py-3 px-4 sm:py-4 sm:px-6 text-left text-white font-semibold w-1/3">Thông tin tham khảo</th>
+                <th class="py-3 px-4 sm:py-4 sm:px-6 text-left text-white font-semibold w-1/3 last:rounded-tr-xl">Thông tin tham khảo</th>
               </tr>
             </thead>
           </table>
