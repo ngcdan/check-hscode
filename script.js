@@ -75,14 +75,14 @@ async function searchData(query) {
     const data = await response.json();
 
     // Phân tích query
-    const isOrSearch = query.includes('||');
-    const isAndSearch = query.includes('|') && !isOrSearch;
+    const isOrSearch = query.includes('|');
+    const isAndSearch = query.includes('&') && !isOrSearch;
 
     let searchPatterns;
     if (isOrSearch) {
-      searchPatterns = query.split('||').map(pattern => pattern.trim());
-    } else if (isAndSearch) {
       searchPatterns = query.split('|').map(pattern => pattern.trim());
+    } else if (isAndSearch) {
+      searchPatterns = query.split('&').map(pattern => pattern.trim());
     } else {
       searchPatterns = [query.trim()];
     }
@@ -90,6 +90,7 @@ async function searchData(query) {
     const filteredData = data.filter(item => {
       if (isOrSearch) {
         // OR condition - match any pattern
+        console.log('call search or condition');
         return searchPatterns.some(pattern =>
           Object.values(item).some(value =>
             removeVietnameseTones(value.toString().toLowerCase())
@@ -97,6 +98,8 @@ async function searchData(query) {
           )
         );
       } else if (isAndSearch) {
+        console.log('call search and condition');
+
         // AND condition - must match all patterns
         return searchPatterns.every(pattern =>
           Object.values(item).some(value =>
@@ -105,6 +108,7 @@ async function searchData(query) {
           )
         );
       } else {
+        console.log('call single partern condition');
         // Single pattern search
         return Object.values(item).some(value =>
           removeVietnameseTones(value.toString().toLowerCase())
