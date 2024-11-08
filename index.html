@@ -171,8 +171,18 @@
 
         <div id="searchContainer" class="mb-6 sm:mb-8">
           <div class="flex flex-col sm:flex-row gap-2">
-            <input type="text" id="searchInput" placeholder="Nhập thông tin tìm kiếm"
-              class="w-full sm:flex-grow px-3 py-2 sm:px-4 sm:py-3 border border-slate-300 rounded-md sm:rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base mb-2 sm:mb-0">
+            <div class="relative w-full group">
+              <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm..."
+                class="w-full sm:flex-grow px-3 py-2 sm:px-4 sm:py-3 border border-slate-300 rounded-md sm:rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base mb-2 sm:mb-0">
+              <div class="hidden group-hover:block absolute z-10 bg-gray-800 text-white text-sm rounded p-4 mt-1 left-0 leading-relaxed">
+                <p class="font-medium mb-2">Cách tìm kiếm:</p>
+                <ol class="space-y-2">
+                  <li>1. Tìm đơn giản: <span class="text-blue-300">'dây cáp điện'</span></li>
+                  <li>2. Tìm nhiều từ khóa: <span class="text-blue-300">'dây cáp | dây điện'</span></li>
+                  <li>3. Tìm kết hợp: <span class="text-blue-300">'dây cáp & công ty A'</span></li>
+                </ol>
+              </div>
+            </div>
             <button id="searchButton"
               class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 sm:px-8 sm:py-3 text-sm sm:text-base font-medium rounded-md sm:rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">Tìm
               kiếm</button>
